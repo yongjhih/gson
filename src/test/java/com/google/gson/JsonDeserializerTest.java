@@ -710,11 +710,19 @@ public class JsonDeserializerTest extends TestCase {
     sb.append(".codegoogle.parser.DispatchQueue$WorkerThread.run(DispatchQueue.java:3139)\n");
 
     String stackTrace = sb.toString();
-    for (int i = 1; i < 6; ++i) {
-      stackTrace += stackTrace;
+    while (true) {
+      try {
+        sb.append(stackTrace);
+        stackTrace = sb.toString();
+        String json = "{\"message\":\"Instrument 10 not found.\","
+          + "\"stackTrace\":\"" + stackTrace + "\"}";
+        parseLongJson(json);
+      } catch (JsonParseException expected) {
+        break;
+      }
     }
-    String json = "{\"message\":\"Instrument 10 not found.\","
-      + "\"stackTrace\":\"" + stackTrace + "\"}";
+  }
+  private void parseLongJson(String json) throws JsonParseException {
     ExceptionHolder target = gson.fromJson(json, ExceptionHolder.class);
     assertTrue(target.message.contains("Instrument"));
     assertTrue(target.stackTrace.contains("DispatchQueue"));

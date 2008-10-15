@@ -124,6 +124,11 @@ final class JsonSerializationVisitor implements ObjectNavigator.Visitor {
       }
     } else {
       Object fieldValue = getFieldValue(f, obj);
+      // This takes care of situations where the field was declared as an Object, but the
+      // actual value contains something more specific. See Issue 54.
+      if (fieldValue != null && typeOfF == Object.class) {
+        typeOfF = fieldValue.getClass();
+      }
       addAsChildOfObject(f, typeOfF, fieldValue);
     }
   }
